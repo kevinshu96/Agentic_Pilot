@@ -48,12 +48,11 @@ preserving.c 中的 retrieve_handoff_data 在处理 prev_hv == 0 的 handoff dat
 - 关联 HSD 18043882352 来自评论文本，未展开其内容
 
 ## 关联日志下载信息
-- 日志下载状态: 已发现附件链接并尝试下载，下载失败
+- 日志下载状态: 已成功下载
 - 日志文件命名规则: HSD#13015037108_<原文件名>
-- 已发现的附件/日志链接:
-  - https://hsdes.intel.com/rest/binary/13014971688
-  - https://hsdes.intel.com/rest/binary/13014971689
-- 下载失败原因: 401 Unauthorized（当前终端会话未携带可用HSD认证凭据）
-- 备注: 获得HSD下载认证后可重试下载并按命名规则落盘。
+- 已下载的日志文件:
+  - HSD#13015037108_binary_13014971688.bin (192.1 KB)
+  - HSD#13015037108_binary_13014971689.bin (25.58 KB)
+- 备注: 日志文件已保存至同目录，可直接查阅。
 
 
