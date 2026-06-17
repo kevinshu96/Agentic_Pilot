@@ -50,3 +50,11 @@ ADR 流程完成时间过长，导致在上述断电/重 IO 压力场景下 GPF 
   - Problem Overview 补充：同一场景（GNR-SP + C6 disabled + >2 AliSCM + heavy IO + 断 AC + GPF 不触发），复现率 ~100%，循环断上电约 10-20 次
   - Fix Description 补充：关联票记录目标为"将 GPF 流程时间降低到 2ms 以内（GNR UPLR1.6 PV release）"
   - Root Cause 补充：关联票未提供明确 root cause 字段
+
+## 关联日志下载信息
+- 日志下载状态: 未发现可提取的附件/日志链接
+- 日志文件命名规则: HSD#14027457811_<原文件名>
+- 日志文件列表: No Info
+- 备注: 当前HSD详情中未提取到可下载日志链接；如后续出现附件链接可补下载。
+
+

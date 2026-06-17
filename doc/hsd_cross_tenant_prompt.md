@@ -60,7 +60,7 @@
 
    | tenant | 特有字段 |
    |---|---|
-   | server_platf_ae | customer_company, closed_reason, fix_description |
+   | server_platf_ae | customer_company, closed_reason, fix_description，ext_cust_blog_hist |
    | Server.bugeco | ccb_por |
    | ipu_process.feature | scope_type, fw_sw_ingredient, customers_requesting |
 
@@ -75,13 +75,22 @@
    - 仅补充证据可追溯的信息，不可猜测。
    - 在文档中明确标注“补充信息来源于关联 HSD {id}”。
    - 保留主票据原始信息与补充信息的边界。
-6. 当 tenant=Server.bugeco 时，增加以下回填逻辑：
+6. 当 tenant=ipu_process.feature 时，增加以下硬过滤规则：
+   - 若 `scope_type=feature_request`，该记录必须跳过，不生成文档。
+   - 该规则优先级高于“命中后生成”流程。
+   - 在最终统计中单独计入“按 tenant 特定规则过滤”的跳过数。
+7. 当 tenant=Server.bugeco 时，增加以下回填逻辑：
    - 若 root cause 与 fix description 为空，优先从 ccb_por 提取候选语句。
    - 提取顺序：明确根因关键词（如 root cause/caused by）-> 修复关键词（如 fix/workaround/resolution）-> 其他可验证结论。
    - 若仅能从 ccb_por 提取到部分信息：
      - Root Cause 或 Fix Description 可单独回填；另一项保留 No Info。
    - 若 ccb_por 也无有效信息：保持 No Info，并标注“证据不足（ccb_por未提供有效根因/修复信息）”。
-7. 仅在满足生成条件时输出文档（默认：root cause 或 fix description 至少一个存在）。
+8. 仅在满足生成条件时输出文档（默认：root cause 或 fix description 至少一个存在）。
+9. 若 HSD 记录中存在日志/附件（例如日志文件、dump、trace、截图压缩包等），必须执行以下动作：
+   - 下载日志文件到该 HSD 文档所在的同一目录。
+   - 下载后的日志文件名必须加前缀 `HSD#`，格式建议为 `HSD#{id}_<原文件名>`。
+   - 若同一 HSD 有多个日志，全部下载并保持可区分命名，不覆盖。
+   - 若日志无法下载，必须在文档“信息补充说明”中标注失败原因。
 
 ## 4) 单个 HSD 文档格式（必须一致）
 
@@ -121,7 +130,8 @@
    - tenant 名必须与查询参数中的 tenant.subject 保持一致，不要简写（例如不要把 Server.bugeco 简写成 server）。
    - 每个 tenant 独立子目录，同一 tenant 下所有文档落入同一目录。
    - YYYYMMDD 取执行当天日期。
-5. 只追加新段落时，不改已有段落内容。
+5. 若有日志附件，日志文件与对应 HSD 文档保存在同一目录，且日志文件名前缀统一为 `HSD#{id}_`。
+6. 只追加新段落时，不改已有段落内容。
 
 ## 6) 质量检查
 
@@ -130,10 +140,13 @@
 1. 命中总数（查询结果数）
 2. 实际生成文档数
 3. 跳过数与原因（如 root/fix 同时缺失）
-4. 缺失Q/A证据的case数
-5. 通过 ccb_por 回填成功的 case 数（仅 Server.bugeco）
-6. 通过 Link HSD 补充成功的 case 数
-7. 文档路径清单
+4. 按 tenant 特定规则过滤的跳过数（例如：ipu_process.feature 中 scope_type=feature_request）
+5. 缺失Q/A证据的case数
+6. 通过 ccb_por 回填成功的 case 数（仅 Server.bugeco）
+7. 通过 Link HSD 补充成功的 case 数
+8. 日志下载成功的 case 数
+9. 日志下载失败的 case 数与失败原因
+10. 文档与日志路径清单
 
 ## 7) 最终汇报格式
 
@@ -164,10 +177,12 @@
 - 时间范围 = {Last 1 year}
 - 高优先级 = {p1-showstopper, p2-high, 3-medium}
 - 已关闭 = {status = complete} Or {status = por}
+- tenant过滤规则 = {当 tenant=ipu_process.feature 且 scope_type=feature_request 时跳过}
 - 上限 = {10}
 - 输出目录 = {C:\Users\wshu96\OneDrive - Intel Corporation\Desktop\HSDCriticAgent\test}（文档落入 test/{tenant}_{YYYYMMDD}/ 子目录）
 - 每个 HSD 一份 Markdown
 - 文件名 = HSD{id}_{customer}__{title}, customer 为空时用 unknown
+- 若HSD存在日志附件：下载到同目录，日志文件名加前缀 HSD#{id}_
 - 必须包含 Root Cause / Fix Description
 - 追加“客户-Intel问答与分析过程”和“Debug步骤建议”
 - 生成条件：root cause 与 fix description 至少一个存在就生成，某项不存在就用No Info
